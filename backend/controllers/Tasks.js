@@ -2,10 +2,10 @@ const TaskModel = require('../Models/Task.js');
 const Validate = require('../validations/Validate.js')
 
 const create = (req, res) => {
-
+    // validate input for create task
     const result = Validate(req);
     if (!result.isEmpty()) {
-        res.json({
+        return res.json({
             status: 'error',
             status_code: 500,
             data: result.mapped()
@@ -13,7 +13,7 @@ const create = (req, res) => {
     }
 
     const { title, description, status } = req.body;
-
+    // create task
     TaskModel.create({
         title,
         description,
@@ -34,6 +34,7 @@ const create = (req, res) => {
 }
 
 const get = (req, res) => {
+    // fetch all tasks
     TaskModel.find()
     .then((response) => {
         res.send({
@@ -51,10 +52,11 @@ const get = (req, res) => {
 }
 
 const update = (req, res) => {
+    // validate input for update task
     const result = Validate(req);
 
     if (!result.isEmpty()) {
-        res.json({
+        return res.json({
             status: 'error',
             status_code: 500,
             data: result.mapped()
@@ -62,7 +64,7 @@ const update = (req, res) => {
     }
 
     const { title, description, status } = req.body;
-
+    // update task
     TaskModel.findByIdAndUpdate(req.params.id, {
         title, description, status
     })
@@ -82,6 +84,7 @@ const update = (req, res) => {
 }
 
 const deleteTask = (req, res) => {
+    // find and delete task
     TaskModel.findByIdAndDelete(req.params.id)
     .then((response) => {
         res.send({
