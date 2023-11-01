@@ -12,9 +12,10 @@ const TaskSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ['To Do', 'In Progress', 'Done']
-    }
-});
+        enum: ['To Do', 'In Progress', 'Done'],
+        default: 'To Do'
+    },
+}, { timestamps: true });
 
 const TaskModel = mongoose.model('tasks', TaskSchema);
 module.exports = TaskModel;
