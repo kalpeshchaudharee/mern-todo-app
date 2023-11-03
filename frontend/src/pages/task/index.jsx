@@ -20,7 +20,7 @@ const TaskList = () => {
 
     // task modal open or close
     const [taskFormModal, setTaskFormModal] = useState(false);
-    // const [editItem, setEditItem] = useState(null);
+    const [editItem, setEditItem] = useState(null);
     const [statusFilter, setStatusFilter] = useState("");
 
     // Colors for task status
@@ -73,10 +73,10 @@ const TaskList = () => {
     }
 
     // open form on edit task
-    // function editTask(item) {
-    //     setEditItem(item);
-    //     setTaskFormModal(true);
-    // }
+    function editTask(item) {
+        setEditItem(item);
+        setTaskFormModal(true);
+    }
 
     function deleteTask(id) {
         const request = {
@@ -101,7 +101,7 @@ const TaskList = () => {
 
     // close modal and reset modal, fetch tasks
     function closeForm() {
-        // setEditItem(null);
+        setEditItem(null);
         setTaskFormModal(false);
         fetchTasks();
     }
@@ -171,16 +171,14 @@ const TaskList = () => {
                 </button>
             </div>
 
-            {/* add editItem prod to createTask component for edit task */}
-            {/* editItem={editItem} */}
             {/* create task form */}
-            <CreateTask open={taskFormModal} closeForm={closeForm} />
+            <CreateTask open={taskFormModal} closeForm={closeForm} editItem={editItem} />
 
             <div className="overflow-y-auto" style={{height: '65vh'}}>
                 <table className="w-full table-auto text-center overflow-y-auto overflow-x-auto mx-auto">
                     <thead className="bg-zinc-400 text-white h-12 sticky top-0">
                         <tr>
-                            <th className="rounded-l-lg px-12">Created At</th>
+                            <th className="rounded-l-lg whitespace-nowrap px-12">Created Date</th>
                             <th className="px-12">Task</th>
                             <th className="px-12">Description</th>
                             <th className="px-12">Status</th>
@@ -214,7 +212,8 @@ const TaskList = () => {
                                 </td>
                                 <td>
                                     {/* edit button for edit task */}
-                                    {/* <button onClick={() => editTask(task)} className="text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1 text-center" type="button">Edit</button> */}
+                                    <button onClick={() => editTask(task)} className="text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1 text-center" type="button">Edit</button>
+                                    {/* delete button */}
                                     <button onClick={() => deleteTask(task._id)} className="ml-4 text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-red-100 font-medium rounded-lg text-sm px-3 py-1 text-center" type="button">Delete</button>
                                 </td>
                             </tr>
