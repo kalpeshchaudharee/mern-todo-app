@@ -1,14 +1,17 @@
 import { useForm } from 'react-hook-form';
 import Modal from "../../components/Modal";
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
 const backendUrl = import.meta.env.VITE_BACKEND_SERVER_URL;
 
-const CreateTask = ({open, closeForm}) => {
+const CreateTask = ({open, editItem, closeForm}) => {
 
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, dirtyFields },
         reset,
+        setValue,
         clearErrors,
       } = useForm();
 
@@ -18,23 +21,55 @@ const CreateTask = ({open, closeForm}) => {
         clearErrors();
       }
 
-      async function submitForm (data) {
+      useEffect(() => {
+        if(editItem) {
+            setValue('title', editItem.title);
+            setValue('description', editItem.description);
+            setValue('status', editItem.status);
+        }
+      }, [editItem])
+
+      async function submitForm(data) {
+        const payload = data;
+
+        if(Object.keys(dirtyFields).length === 0) {
+            closeAndReset();
+            return;
+        }
+        if(editItem) {
+            for(let key in data) {
+                if(!dirtyFields[key]) {
+                    delete payload[key];
+                }
+            }
+        }
+
+        const uri = editItem ? `${backendUrl}/task/update/${editItem._id}` : `${backendUrl}/task/create`;
+
         const request = {
-            method: 'POST',
+            method: editItem ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(data)
         }
-        fetch(`${backendUrl}/task/create`, request)
+
+        fetch(uri, request)
         .then((response) => {
-            response.json().then(result => {
-                console.log(result.data);
+            response.json().then((result) => {
+                console.log(result);
+
+                if(response.ok) {
+                    if(editItem) {
+                        toast.success('Task Updated');
+                    } else {
+                        toast.success('Task Created');
+                    }
+                    closeAndReset()
+                } else {
+                    toast.error(result.message);
+                }
             })
-            closeAndReset()
-        })
-        .catch((error) => {
-            console.log(error)
         })
     }
 

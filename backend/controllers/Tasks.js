@@ -1,14 +1,14 @@
 const TaskModel = require('../Models/Task.js');
-const Validate = require('../validations/Validate.js')
+const { validationResult } = require('express-validator');
 
 const create = (req, res) => {
     // validate input for create task
-    const result = Validate(req);
+    const result = validationResult(req);
     if (!result.isEmpty()) {
-        return res.json({
+        return res.status(500).send({
             status: 'error',
             status_code: 500,
-            data: result.mapped()
+            message: Object.keys(result.mapped()).join(',') + " this fields are invalid."
         });
     }
 
@@ -25,41 +25,57 @@ const create = (req, res) => {
             data: response
         });
     }).catch((error) => {
-        res.send({
+        res.status(500).send({
             status: 'error',
             status_code: 500,
-            error: error.message
-        });
+            message: error.message
+        })
     });
 }
 
-const get = (req, res) => {
-    // fetch all tasks
-    TaskModel.find()
-    .then((response) => {
+const get = async (req, res) => {
+    const { page = 1, size = 10, statusFilter } = req.query;
+
+    // fetch tasks with pagination
+    let filters = null;
+    if(statusFilter) {
+        filters = {status: statusFilter}
+    }
+    const tasks = TaskModel.find(filters).limit(size).skip((page - 1) * size).exec();
+
+    // get count of all tasks
+    const count = await TaskModel.countDocuments(filters);
+
+    tasks.then((response) => {
         res.send({
             status: 'success',
             status_code: 200,
-            data: response
+            data: {
+                page: page,
+                size: size,
+                totalPages: Math.ceil(count / size),
+                totalElements: count,
+                result: response
+            }
         });
     }).catch((error) => {
         res.send({
             status: 'error',
             status_code: 500,
-            data: error
+            message: error
         })
     });
 }
 
 const update = (req, res) => {
     // validate input for update task
-    const result = Validate(req);
+    const result = validationResult(req);
 
     if (!result.isEmpty()) {
-        return res.json({
+        return res.status(500).send({
             status: 'error',
             status_code: 500,
-            data: result.mapped()
+            message: Object.keys(result.mapped()).join(',') + " this fields are invalid."
         });
     }
 
@@ -78,7 +94,7 @@ const update = (req, res) => {
         res.send({
             status: 'error',
             status_code: 500,
-            data: error
+            message: error
         })
     });
 }
@@ -96,7 +112,7 @@ const deleteTask = (req, res) => {
         res.send({
             status: 'error',
             status_code: 500,
-            data: error
+            message: error
         })
     });
 }
