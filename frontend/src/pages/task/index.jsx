@@ -90,7 +90,7 @@ const TaskList = () => {
         .then((response) => {
             response.json().then(result => {
                 if(response.ok) {
-                    toast.success(result.message);
+                    toast.success('Task Deleted');
                 } else {
                     toast.error(result.message);
                 }
